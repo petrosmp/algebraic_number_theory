@@ -143,7 +143,7 @@ def polynomial_division_Zp(a: list[int], b: list[int], p: int) -> tuple[list[int
         q = sumZp(q, pad_with_zeros(shifted_k, len(q)), p)
 
         # multiply b by the quotient we found
-        mutliplied = [0]*deg_k + mulZp(b, k, p)
+        mutliplied = [0]*deg_k + mulZp(b, k, p) # this could also be convZp(b, shifted_k, p)
 
         # subtract the product from the dividend
         r = difZp(a, mutliplied, p)
