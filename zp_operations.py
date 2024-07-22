@@ -2,8 +2,9 @@ from typing import Literal
 from math import log10
 
 
-WHITE_ON_RED = '\033[37;42m'
-RESET = '\033[0m'
+WHITE_ON_RED = "\033[37;42m"
+RESET = "\033[0m"
+
 
 def mulZp_scalar(x: int, y: int, p: int) -> int:
     """Computes the scalar multiplication x*y mod p"""
@@ -53,7 +54,7 @@ def convZp(x: list[int], y: list[int], p: int) -> list[int]:
     """Calculates the convolution of 2 polynomials in Zp[x]. Assumes x, y are of the same length."""
     res = []
     x, y = prokroustis(x, y)
-    y = [0 for _ in y] + y[::-1]
+    y = [0] * len(y) + y[::-1]  # invert x and prepend it with zeros
     for i in range(len(y) - 1):
         x_part = x[: i + 1]  # up to the i'th element (i=0 -> only the first, i>=len -> all)
         y_part = y[-(i + 1) :]  # from the i'th last element onwards (i=0->only the last, i=len -> all)
@@ -136,7 +137,7 @@ def polynomial_division_Zp(a: list[int], b: list[int], p: int) -> tuple[list[int
     deg_b = len(b)
     b_leading_coeff = b[-1]
 
-    q = [0 for _ in range(len(a) + deg_b)]  # start it from all 0 so then we can add instead of appending
+    q = [0] * (len(a) + deg_b)  # start it from all 0 so then we can add instead of appending
     r = a
 
     while deg_b <= len(a):
@@ -150,7 +151,7 @@ def polynomial_division_Zp(a: list[int], b: list[int], p: int) -> tuple[list[int
         q = sumZp(q, pad_with_zeros(shifted_k, len(q)), p)
 
         # multiply b by the quotient we found
-        mutliplied = [0]*deg_k + mulZp(b, k, p) # this could also be convZp(b, shifted_k, p)
+        mutliplied = [0] * deg_k + mulZp(b, k, p)  # this could also be convZp(b, shifted_k, p)
 
         # subtract the product from the dividend
         r = difZp(a, mutliplied, p)
@@ -172,7 +173,7 @@ def pad_with_zeros(x: list[int], desired_length: int) -> list[int]:
     Append as many zeros as needed to the given list so that it reaches the desired length.
     """
     num_zeros = desired_length - len(x)
-    return x + [0]*num_zeros
+    return x + [0] * num_zeros
 
 
 def ext_euc_alg_poly(
@@ -235,7 +236,7 @@ def to_polynomial(x: list[int]) -> str:
     first = True
     for i, coeff in enumerate(x):
         if i == 0:
-            if coeff!=0 or set(x) == {0}: # only print a leading zero iff all of x is zeros
+            if coeff != 0 or set(x) == {0}:  # only print a leading zero iff all of x is zeros
                 res += f"{coeff}"
                 first = False
         elif coeff:
@@ -265,7 +266,8 @@ def prokroustis(x: list[int], y: list[int]) -> tuple[list[int], list[int]]:
 
 
 def next_odd(n: int) -> int:
-    return n if n%2 == 1 else n+1
+    return n if n % 2 == 1 else n + 1
+
 
 def generate_elements(p: int, length: int) -> list[list[int]]:
     """
@@ -273,7 +275,7 @@ def generate_elements(p: int, length: int) -> list[list[int]]:
     up to `p`.
     """
     result = []
-    
+
     for i in range(p**length):
         elem = []
         tmp = i
@@ -333,20 +335,24 @@ class GaloisField:
                 tmp.append(r)
             self.multiplication_table.append(tmp)
 
-    def print_table(self, operation: Literal["addition", "multiplication"] = "multiplication", mode: Literal["integer", "polynomial"] = "integer") -> None:
+    def print_table(
+        self,
+        operation: Literal["addition", "multiplication"] = "multiplication",
+        mode: Literal["integer", "polynomial"] = "integer",
+    ) -> None:
         # calculate the width of each column
         if mode == "integer":
             # number of digits of the greatest element
-            col_width = int(log10(self.order-1))+1
+            col_width = int(log10(self.order - 1)) + 1
         else:
             # number of coefficients * number of digits of the maximum coefficient
-            col_width = self.elem_degree*(int(log10(self.p-1))+1)
-        col_width = next_odd(col_width+2)
+            col_width = self.elem_degree * (int(log10(self.p - 1)) + 1)
+        col_width = next_odd(col_width + 2)
 
-        symbol = "+" if operation=="addition" else "*"
+        symbol = "+" if operation == "addition" else "*"
 
         print(f"\n{operation.capitalize()} table for GF({self.order}) ({mode} representation):")
-        print(f"{symbol.center(col_width)}|", end = "")
+        print(f"{symbol.center(col_width)}|", end="")
         for a in self.elements:
             self.print_element(a, mode, col_width, title=True)
         print()
@@ -358,10 +364,12 @@ class GaloisField:
             print()
         print()
 
-    def print_element(self, elem: list[int], mode: Literal["integer", "polynomial"], col_width: int, title: bool = False):
+    def print_element(
+        self, elem: list[int], mode: Literal["integer", "polynomial"], col_width: int, title: bool = False
+    ):
         """
         Print the given element of the field in the given mode (integer or polynomial).
-        
+
         Prints 1 (both in integer and polynomial form) in color, unless in `title` mode.
         """
         prefix = suffix = ""
