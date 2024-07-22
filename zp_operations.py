@@ -162,6 +162,10 @@ def polynomial_division_Zp(a: list[int], b: list[int], p: int) -> tuple[list[int
     return remove_trailing_zeros(q), r
 
 
+def mydeconv(a: list[int], b: list[int], p: int) -> tuple[list[int], list[int]]:
+    return polynomial_division_Zp(a, b, p)
+
+
 def remove_trailing_zeros(x: list[int]) -> list[int]:
     while x and x[-1] == 0:
         x.pop()
