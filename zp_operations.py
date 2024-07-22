@@ -233,6 +233,10 @@ def ext_euc_alg_poly(
     return r_prev, non_monic, x_prev, y_prev
 
 
+def ext_euc_alg_int(a: int, b: int) -> tuple[int, int, int]:
+    return extended_euclid(a, b)
+
+
 def to_polynomial(x: list[int]) -> str:
     if not x:
         return "0"
