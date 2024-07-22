@@ -57,7 +57,7 @@ def convZp(x: list[int], y: list[int], p: int) -> list[int]:
     y = [0] * len(y) + y[::-1]  # invert x and prepend it with zeros
     for i in range(len(y) - 1):
         x_part = x[: i + 1]  # up to the i'th element (i=0 -> only the first, i>=len -> all)
-        y_part = y[-(i + 1) :]  # from the i'th last element onwards (i=0->only the last, i=len -> all)
+        y_part = y[-(i + 1):]  # from the i'th last element onwards (i=0->only the last, i=len -> all)
         res.append(sumZp_list([mulZp_scalar(k, l, p) for k, l in zip(x_part, y_part)], p))
     return res
 
@@ -178,7 +178,7 @@ def pad_with_zeros(x: list[int], desired_length: int) -> list[int]:
 
 def ext_euc_alg_poly(
     a: list[int], b: list[int], p: int, verbose: bool = False
-) -> tuple[list[str], list[str], list[str]]:
+) -> tuple[list[int], list[int], list[int], list[int]]:
     """
     Calculates the GCD of the given polynomials and the coefficients of the linear combination of them that
     is equal to it.
@@ -287,11 +287,11 @@ def generate_elements(p: int, length: int) -> list[list[int]]:
     return result
 
 
-###################################################################################################
-###################################################################################################
-############# Using almost all of the above, we can construct arbitrary Galois Fields #############
-###################################################################################################
-###################################################################################################
+# ############################################################################################### #
+# ############################################################################################### #
+# ########### Using almost all of the above, we can construct arbitrary Galois Fields ########### #
+# ############################################################################################### #
+# ############################################################################################### #
 
 
 class GaloisField:
