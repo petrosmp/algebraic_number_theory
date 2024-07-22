@@ -9,4 +9,3 @@ gf.print_table(operation="addition", mode="integer")
 
 gf.print_table(operation="multiplication", mode="polynomial")
 gf.print_table(operation="multiplication", mode="integer")
-
