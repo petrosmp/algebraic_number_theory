@@ -29,7 +29,7 @@ The submission is comprised of the following files:
       Note that p is assumed to be prime and f(x) is assumed to be irreducible. If one
       of those assumptions does not hold, no error is raised and the addition/multiplication
       tables are constructed normally, however they do not represent a field, since there
-      will be elements that do not have a multiplicative inverse. 
+      will be elements that do not have a multiplicative inverse.
 
 Throughout the code polynomials are represented by an array of coefficients, with the index
 of each coefficient representing the power of x to which the coefficient applies. For example,
