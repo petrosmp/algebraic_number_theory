@@ -42,7 +42,7 @@ def mulZp(x: list[int], y: int, p: int) -> list[int]:
     return [(i * y) % p for i in x]
 
 
-def convZp(x: list[int], y: list[int], p: int):
+def convZp(x: list[int], y: list[int], p: int) -> list[int]:
     """Calculates the convolution of 2 polynomials in Zp[x]. Assumes x, y are of the same length."""
     res = []
     x, y = prokroustis(x, y)
@@ -130,7 +130,7 @@ def polynomial_division_Zp(a: list[int], b: list[int], p: int) -> tuple[list[int
     b_leading_coeff = b[-1]
 
     q = [0 for _ in range(len(a) + deg_b)]  # start it from all 0 so then we can add instead of appending
-    r = []
+    r = a
 
     while deg_b <= len(a):
         # find k: k*b_leading_coeff = a_leading_coeff (mod p) so we can cancel it out
@@ -165,7 +165,7 @@ def pad_with_zeros(x: list[int], desired_length: int) -> list[int]:
     Append as many zeros as needed to the given list so that it reaches the desired length.
     """
     num_zeros = desired_length - len(x)
-    return x + [0 for _ in range(num_zeros)]
+    return x + [0]*num_zeros
 
 
 def ext_euc_alg_poly(
@@ -224,26 +224,22 @@ def ext_euc_alg_poly(
 def to_polynomial(x: list[int]) -> str:
     if not x:
         return "0"
-
     res = ""
     first = True
     for i, coeff in enumerate(x):
-        if coeff != 0:
-            if i == 0:
+        if i == 0:
+            if coeff!=0 or set(x) == {0}: # only print a leading zero iff all of x is zeros
                 res += f"{coeff}"
                 first = False
-            elif i == 1:
-                if first:
-                    first = False
-                else:
-                    res += " + "
-                res += f"{coeff if coeff != 1 else ''}x"
+        elif coeff:
+            if first:
+                first = False
             else:
-                if first:
-                    first = False
-                else:
-                    res += " + "
-                res += f"{coeff if coeff != 1 else ''}x^{i}"
+                res += " + "
+            if i == 1:
+                res += f"{'' if coeff == 1 else coeff}x"
+            else:
+                res += f"{'' if coeff == 1 else coeff}x^{i}"
     return res
 
 
