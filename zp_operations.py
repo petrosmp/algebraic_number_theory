@@ -1,3 +1,10 @@
+from typing import Literal
+from math import log10
+
+
+WHITE_ON_RED = '\033[37;42m'
+RESET = '\033[0m'
+
 def mulZp_scalar(x: int, y: int, p: int) -> int:
     """Computes the scalar multiplication x*y mod p"""
     return (x * y) % p
@@ -255,3 +262,114 @@ def prokroustis(x: list[int], y: list[int]) -> tuple[list[int], list[int]]:
         x = pad_with_zeros(x, l_y)
 
     return x, y
+
+
+def next_odd(n: int) -> int:
+    return n if n%2 == 1 else n+1
+
+def generate_elements(p: int, length: int) -> list[list[int]]:
+    """
+    Return a list containing all possible arrays with the given `length` with elements
+    up to `p`.
+    """
+    result = []
+    
+    for i in range(p**length):
+        elem = []
+        tmp = i
+        for _ in range(length):
+            elem.append(tmp % p)
+            tmp //= p
+        result.append(elem)
+
+    return result
+
+
+###################################################################################################
+###################################################################################################
+############# Using almost all of the above, we can construct arbitrary Galois Fields #############
+###################################################################################################
+###################################################################################################
+
+
+class GaloisField:
+
+    p: int
+    f: list[int]
+    elements: list[list[int]]
+    order: int
+    addition_table: list[list[list[int]]]  # a list of lists of polynomials
+    multiplication_table: list[list[list[int]]]  # a list of lists of polynomials
+    elem_degree: int
+
+    def __init__(self, p: int, f: list[int]) -> None:
+        self.p = p
+        self.f = f
+
+        # generate the field elements
+        f_degree = len(remove_trailing_zeros(f))
+        elem_degree = f_degree - 1
+        field_elements = generate_elements(p, elem_degree)
+        self.elements = field_elements
+        self.order = len(self.elements)
+        self.elem_degree = elem_degree
+
+        # calculate the addition table
+        self.addition_table = []
+        for a in self.elements:
+            tmp = []
+            for b in self.elements:
+                tmp.append(sumZp(a, b, p))
+            self.addition_table.append(tmp)
+
+        # calculate the multiplication table
+        self.multiplication_table = []
+        for a in self.elements:
+            tmp = []
+            for b in self.elements:
+                prod = convZp(a, b, p)
+                _, r = polynomial_division_Zp(prod, f, p)
+                r = pad_with_zeros(r, elem_degree)
+                tmp.append(r)
+            self.multiplication_table.append(tmp)
+
+    def print_table(self, operation: Literal["addition", "multiplication"] = "multiplication", mode: Literal["integer", "polynomial"] = "integer") -> None:
+        # calculate the width of each column
+        if mode == "integer":
+            # number of digits of the greatest element
+            col_width = int(log10(self.order-1))+1
+        else:
+            # number of coefficients * number of digits of the maximum coefficient
+            col_width = self.elem_degree*(int(log10(self.p-1))+1)
+        col_width = next_odd(col_width+2)
+
+        symbol = "+" if operation=="addition" else "*"
+
+        print(f"\n{operation.capitalize()} table for GF({self.order}) ({mode} representation):")
+        print(f"{symbol.center(col_width)}|", end = "")
+        for a in self.elements:
+            self.print_element(a, mode, col_width, title=True)
+        print()
+        for i, a in enumerate(self.elements):
+            self.print_element(a, mode, col_width, title=True)
+            for j in range(self.order):
+                result = self.addition_table[i][j] if operation == "addition" else self.multiplication_table[i][j]
+                self.print_element(result, mode, col_width)
+            print()
+        print()
+
+    def print_element(self, elem: list[int], mode: Literal["integer", "polynomial"], col_width: int, title: bool = False):
+        """
+        Print the given element of the field in the given mode (integer or polynomial).
+        
+        Prints 1 (both in integer and polynomial form) in color, unless in `title` mode.
+        """
+        prefix = suffix = ""
+        is_one = self.elements.index(elem) == 1
+        if is_one and not title:
+            prefix = WHITE_ON_RED
+            suffix = RESET
+        if mode == "integer":
+            print(f"{prefix}{str(self.elements.index(elem)).center(col_width)}{suffix}|", end="")
+        else:
+            print(f"{prefix}{''.join(map(str, elem)).center(col_width)}{suffix}|", end="")
